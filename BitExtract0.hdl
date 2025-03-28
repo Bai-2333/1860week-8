@@ -1,0 +1,9 @@
+CHIP BitExtract0 {
+    IN in[16];
+    OUT out;
+
+    PARTS:
+    // Extract in[0]: using two NOT gates as a buffer (to avoid direct wiring issues)
+    Not(in=in[0], out=n0);
+    Not(in=n0, out=out);
+}

@@ -1,0 +1,8 @@
+CHIP BitExtract1 {
+    IN in[16];
+    OUT out;
+
+    PARTS:
+    Not(in=in[1], out=n0);
+    Not(in=n0, out=out);
+}
