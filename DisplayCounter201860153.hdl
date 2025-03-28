@@ -1,27 +1,25 @@
-// 16-bit counter with increment and reset, driving a 7-seg display
 CHIP DisplayCounter201860153 {
-    IN inc, reset;
+    IN  inc, reset;
     OUT a, b, c, d, e, f, g;
-    
+
     PARTS:
-    // 第一步：计算当前值加一
-    Inc16(in=currVal, out=incVal);
-    // 第二步：根据 inc 信号选择递增值或保持当前值
-    Mux16(a=currVal, b=incVal, sel=inc, out=selVal);
-    // 第三步：根据 reset 信号选择上述结果或重置为 0
-    Mux16(a=selVal, b=false, sel=reset, out=nextVal);
-    // 第四步：当 inc 或 reset 有效时更新寄存器
-    Or(a=inc, b=reset, out=loadSig);
-    // 第五步：16 位寄存器存储当前计数值
-    Register(in=nextVal, out=currVal, load=loadSig);
-    // 第六步：提取当前计数值的低 4 位
-    BitExtract0(in=currVal, out=bit0);
-    BitExtract1(in=currVal, out=bit1);
-    BitExtract2(in=currVal, out=bit2);
-    BitExtract3(in=currVal, out=bit3);
-    // 第七步：将 4 位值译码为七段显示的 a-g 输出
+    Register(in=regIn, out=regOut, load=load);
+    Inc16(in=regOut, out=incOut);
+    Mux16(a=regOut, b=incOut, sel=inc, out=incMuxOut);
+    Mux16(a=incMuxOut, b=false, sel=reset, out=regIn);
+    Or(a=inc, b=reset, out=load);
+
+    Splitter16(in=regOut, 
+        out0=bit0, 
+        out1=bit1, 
+        out2=bit2, 
+        out3=bit3
+    );
     Decoder201860153(
-        A=bit0, B=bit1, C=bit2, D=bit3,
+        D=bit3, 
+        C=bit2, 
+        B=bit1, 
+        A=bit0, 
         a=a, b=b, c=c, d=d, e=e, f=f, g=g
     );
 }
