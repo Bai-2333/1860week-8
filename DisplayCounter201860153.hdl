@@ -1,34 +1,40 @@
 CHIP DisplayCounter201860153 {
-    IN  inc,        // Increment signal
-        reset;      // Reset signal
-    OUT a, b, c, d, e, f, g;  // Outputs to 7-segment display
+    IN  inc,        // Increment signal: when high, the counter increments by 1
+        reset;      // Reset signal: when high, the counter output resets to 0
+    OUT a, b, c, d, e, f, g,  // Outputs to drive the 7-segment display
+        count[4];   // 4-bit counter output (added to make bits accessible)
 
     PARTS:
-    // Register stores current count
+    // Register: Stores the current count (16 bits, but only the low 4 bits are used)
     Register(in=regIn, out=regOut, load=load);
 
-    // Increment logic
+    // Inc16: Adds 1 to the 16-bit value (regOut)
     Inc16(in=regOut, out=incOut);
+
+    // First Mux16: Chooses between "keeping the current value" (regOut) and "incremented value" (incOut)
     Mux16(a=regOut, b=incOut, sel=inc, out=incMuxOut);
+
+    // Second Mux16: Chooses between the "normal next value" (incMuxOut) and "reset to 0" 
     Mux16(a=incMuxOut, b=false, sel=reset, out=regIn);
+
+    // Load control: If either inc or reset is high, the register loads the new value
     Or(a=inc, b=reset, out=load);
 
-    // Extract regOut[0..3] bits using Mux16
-    Mux16(a=false, b=true, sel=regOut[0], out=bit0);
-    Mux16(a=false, b=true, sel=regOut[1], out=bit1);
-    Mux16(a=false, b=true, sel=regOut[2], out=bit2);
-    Mux16(a=false, b=true, sel=regOut[3], out=bit3);
+    // Output the 4 bits we care about
+    BUFFER(in=regOut[0], out=count[0]);
+    BUFFER(in=regOut[1], out=count[1]);
+    BUFFER(in=regOut[2], out=count[2]);
+    BUFFER(in=regOut[3], out=count[3]);
 
-    // Connect bits to decoder
+    // 7-Segment Decoder: Maps the low 4 bits of the counter to outputs a-g
     Decoder201860153(
-        A=bit0,
-        B=bit1,
-        C=bit2,
-        D=bit3,
+        D=count[3], 
+        C=count[2], 
+        B=count[1], 
+        A=count[0], 
         a=a, b=b, c=c, d=d, e=e, f=f, g=g
     );
 }
-
 
 
 
