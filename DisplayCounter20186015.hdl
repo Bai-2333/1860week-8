@@ -1,4 +1,4 @@
-CHIP DisplayCounter0521634 {
+CHIP DisplayCounter201860153 {
     IN  inc,        // Increment signal: when high, the counter increments by 1
         reset;      // Reset signal: when high, the counter output resets to 0
     OUT a, b, c, d, e, f, g;  // Outputs to drive the 7-segment display
