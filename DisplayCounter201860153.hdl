@@ -1,21 +1,33 @@
 CHIP DisplayCounter201860153 {
-    IN  inc, reset;
+    IN inc, reset;
     OUT a, b, c, d, e, f, g;
 
     PARTS:
-    Bit(in=in0, load=load, out=out0);
-    Bit(in=in1, load=load, out=out1);
-    Bit(in=in2, load=load, out=out2);
-    Bit(in=in3, load=load, out=out3);
+    // 16-bit register to hold the count value
+    Register(in=nextVal, out=currVal, load=load);
 
+    // Compute nextVal = currVal + 1
+    Inc16(in=currVal, out=incVal);
+
+    // If inc=1, take incVal; else hold currVal
+    Mux16(a=currVal, b=incVal, sel=inc, out=incOrCurr);
+
+    // If reset=1, nextVal=0; else use incOrCurr
+    Mux16(a=incOrCurr, b=false, sel=reset, out=nextVal);
+
+    // load when inc or reset is high
+    Or(a=inc, b=reset, out=load);
+
+    // Use the low 4 bits [0..3] of currVal as input to decoder
     Decoder201860153(
-        A=out0,
-        B=out1,
-        C=out2,
-        D=out3,
+        A=currVal[0],
+        B=currVal[1],
+        C=currVal[2],
+        D=currVal[3],
         a=a, b=b, c=c, d=d, e=e, f=f, g=g
     );
 }
+
 
 
 
