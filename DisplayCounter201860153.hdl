@@ -21,9 +21,21 @@ CHIP DisplayCounter201860153 {
     // Load control: If either inc or reset is high, the register loads the new value; otherwise, it holds the current value.
     Or(a=inc, b=reset, out=load);
 
-    // 7-Segment Decoder: Maps the low 4 bits of the counter (regOut[0..3]) to outputs a, b, c, d, e, f, g
-    Decoder201860153(in=regOut[0..3], out=a, b, c, d, e, f, g);
-}
+   // 7-Segment Decoder: Maps the low 4 bits of the counter (regOut[0..3]) to outputs a, b, c, d, e, f, g
+Decoder201860153(
+    A=regOut[0],
+    B=regOut[1],
+    C=regOut[2],
+    D=regOut[3],
+    a=a,
+    b=b,
+    c=c,
+    d=d,
+    e=e,
+    f=f,
+    g=g
+);
+
 
 
 
