@@ -1,0 +1,10 @@
+CHIP Splitter16 {
+    IN  in[16];
+    OUT out0, out1, out2, out3;
+
+    PARTS:
+    BUFFER(in=in[0], out=out0);
+    BUFFER(in=in[1], out=out1);
+    BUFFER(in=in[2], out=out2);
+    BUFFER(in=in[3], out=out3);
+}
