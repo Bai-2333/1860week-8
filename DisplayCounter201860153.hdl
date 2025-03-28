@@ -1,34 +1,32 @@
 CHIP DisplayCounter201860153 {
-    IN  inc,        // Increment signal: when high, the counter increments by 1
-        reset;      // Reset signal: when high, the counter output resets to 0
-    OUT a, b, c, d, e, f, g;  // Outputs to drive the 7-segment display
+    IN  inc,        // Increment signal
+        reset;      // Reset signal
+    OUT a, b, c, d, e, f, g;  // Outputs to 7-segment display
 
     PARTS:
-    // Register: Stores the current count (16 bits, but only the low 4 bits are used)
+    // Counter Register
     Register(in=regIn, out=regOut, load=load);
 
-    // Inc16: Adds 1 to the 16-bit value (regOut)
+    // Increment logic
     Inc16(in=regOut, out=incOut);
-
-    // First Mux16: Chooses between "keeping the current value" (regOut) and "incremented value" (incOut)
-    // If inc = 0, then output regOut; if inc = 1, then output incOut
     Mux16(a=regOut, b=incOut, sel=inc, out=incMuxOut);
-
-    // Second Mux16: Chooses between the "normal next value" (incMuxOut) and "reset to 0" 
-    // If reset = 1, output 16-bit 0; if reset = 0, output incMuxOut
     Mux16(a=incMuxOut, b=false, sel=reset, out=regIn);
-
-    // Load control: If either inc or reset is high, the register loads the new value; otherwise, it holds the current value.
     Or(a=inc, b=reset, out=load);
 
-   
-Decoder201860153(
-   D=regOut[3],
-   C=regOut[2],
-   B=regOut[1],
-   A=regOut[0],
-   a=a, b=b, c=c, d=d, e=e, f=f, g=g
-);
+    And(a=regOut, b[0]=true, out=bit0);
+    And(a=regOut, b[1]=true, out=bit1);
+    And(a=regOut, b[2]=true, out=bit2);
+    And(a=regOut, b[3]=true, out=bit3);
+
+    Decoder201860153(
+        A=bit0,
+        B=bit1,
+        C=bit2,
+        D=bit3,
+        a=a, b=b, c=c, d=d, e=e, f=f, g=g
+    );
+}
+
 
 
 
