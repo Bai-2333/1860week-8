@@ -22,7 +22,7 @@ CHIP DisplayCounter201860153 {
     Or(a=inc, b=reset, out=load);
 
     // 7-Segment Decoder: Maps the low 4 bits of the counter (regOut[0..3]) to outputs a, b, c, d, e, f, g
-    Decoder13(in=regOut[0..3], out=a, b, c, d, e, f, g);
+    Decoder201860153(in=regOut[0..3], out=a, b, c, d, e, f, g);
 }
 
 
