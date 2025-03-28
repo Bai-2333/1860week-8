@@ -1,29 +1,36 @@
 CHIP DisplayCounter201860153 {
-    IN inc, reset;
-    OUT a, b, c, d, e, f, g;
+    IN  inc,        // Increment signal: when high, the counter increments by 1
+        reset;      // Reset signal: when high, the counter resets to 0
+    OUT a, b, c, d, e, f, g;  // Outputs to drive the 7-segment display
 
     PARTS:
-    // 16-bit register to hold the count value
-    Register(in=nextVal, out=currVal, load=load);
+    // Register: A 16-bit register (only the low 4 bits are used)
+    Register(in=regIn, out=regOut, load=load);
 
-    // Compute nextVal = currVal + 1
-    Inc16(in=currVal, out=incVal);
+    // Inc16: Adds 1 to the 16-bit value (regOut)
+    Inc16(in=regOut, out=incOut);
 
-    // If inc=1, take incVal; else hold currVal
-    Mux16(a=currVal, b=incVal, sel=inc, out=incOrCurr);
+    // First Mux16: Selects between the current value (regOut) and the incremented value (incOut)
+    Mux16(a=regOut, b=incOut, sel=inc, out=incMuxOut);
 
-    // If reset=1, nextVal=0; else use incOrCurr
-    Mux16(a=incOrCurr, b=false, sel=reset, out=nextVal);
+    // Second Mux16: Selects between the normal next value (incMuxOut) and reset to 0 (false)
+    Mux16(a=incMuxOut, b=false, sel=reset, out=regIn);
 
-    // load when inc or reset is high
+    // Load control: The register loads the new value if either inc or reset is high; otherwise, it holds its value.
     Or(a=inc, b=reset, out=load);
 
-    // Use the low 4 bits [0..3] of currVal as input to decoder
+    // Use auxiliary chips to extract the lower 4 bits of regOut
+    BitExtract0(in=regOut, out=bit0);
+    BitExtract1(in=regOut, out=bit1);
+    BitExtract2(in=regOut, out=bit2);
+    BitExtract3(in=regOut, out=bit3);
+
+    // 7-segment decoder: Use the extracted 4 bits as inputs to the decoder
     Decoder201860153(
-        A=currVal[0],
-        B=currVal[1],
-        C=currVal[2],
-        D=currVal[3],
+        D=bit3,
+        C=bit2,
+        B=bit1,
+        A=bit0,
         a=a, b=b, c=c, d=d, e=e, f=f, g=g
     );
 }
